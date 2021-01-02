@@ -1,46 +1,60 @@
-export EDITOR=vim
-source /usr/share/zsh-antigen/antigen.zsh
+setopt auto_cd
+setopt auto_menu
+setopt extended_history
+setopt append_history
 
-antigen use oh-my-zsh
-
-antigen bundle git
-antigen bundle pip
-antigen bundle debian
-antigen bundle command-not-found
-antigen bundle python
-antigen bundle github
-antigen bundle git-extras
-antigen bundle docker
-antigen bundle tmux
-antigen bundle node
-antigen bundle npm
-antigen bundle systemd
-antigen bundle gulp
-antigen bundle bower
-
-antigen bundle zsh-users/zsh-syntax-highlighting
-
-antigen theme juanghurtado
-antigen apply
-
-ssh-add -l |grep 'SHA256:KKhiTnGcJbRirZAltgrvv1zu/cnwuOEmgA5r7Nl1qaA' >/dev/null
-if [[ $? != 0 && -f ~/.ssh/pchaussalet.pem ]]; then
-    ssh-add ~/.ssh/pchaussalet.pem
+if [ `uname` = "Darwin" ]; then
+  IS_DARWIN=1
 fi
 
-if which tmux >/dev/null 2>&1; then
-	if [[ -z "$TMUX" ]] ;then
-		ID="`tmux ls | grep -vm1 attached | cut -d: -f1`" # get the id of a deattached session
-		if [[ -z "$ID" ]] ;then # if not available create a new one
-			tmux new-session
-		else
-			tmux attach-session -t "$ID" # if available attach to it
-		fi
-	fi
+if [ `uname` = "Linux" ]; then
+  IS_LINUX=1
 fi
 
-alias mail_read='tmux source-file ~/mail_read.tmux'
-eval "$(chef shell-init zsh)"
+if [ ! -d ${HOME}/.zgen ]; then
+  git clone https://github.com/tarjoilija/zgen.git "${HOME}/.zgen"
+fi
 
-# OPAM configuration
-. /home/pchaussalet/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
+source "${HOME}/.zgen/zgen.zsh"
+
+if ! zgen saved; then
+
+  # plugins
+  zgen load unixorn/autoupdate-zgen
+  zgen oh-my-zsh
+  zgen oh-my-zsh plugins/dotenv
+  zgen oh-my-zsh plugins/git
+  zgen oh-my-zsh plugins/sudo
+  zgen oh-my-zsh plugins/command-not-found
+  zgen oh-my-zsh plugins/brew
+  zgen oh-my-zsh plugins/sudo
+  zgen oh-my-zsh plugins/gradle
+  zgen oh-my-zsh plugins/history
+  zgen oh-my-zsh plugins/docker
+  zgen oh-my-zsh plugins/nvm
+  zgen oh-my-zsh plugins/npm
+  zgen oh-my-zsh plugins/node
+  zgen load chrissicool/zsh-256color
+
+  # theme
+  zgen load NelsonBrandao/absolute absolute
+
+  if [ IS_DARWIN -eq 1 ]; then
+    zgen oh-my-zsh plugins/osx
+  fi
+
+  zgen save
+fi
+ZGEN_PLUGIN_UPDATE_DAYS=1
+
+export NVM_DIR="$HOME/.nvm"
+  [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
+  [ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && . "/usr/local/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+
+export NODE_OPTIONS="--max-old-space-size=8192"
+
+alias idea.="idea ."
+
+if [ -f .zshrc.local ]; then
+  source .zshrc.local
+fi
