@@ -39,8 +39,8 @@ if ! zgen saved; then
   # theme
   zgen load NelsonBrandao/absolute absolute
 
-  if [ IS_DARWIN -eq 1 ]; then
-    zgen oh-my-zsh plugins/osx
+  if [ "${IS_DARWIN}" = "1" ]; then
+    zgen oh-my-zsh plugins/macos
   fi
 
   zgen save
