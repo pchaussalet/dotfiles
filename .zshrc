@@ -55,6 +55,16 @@ export NODE_OPTIONS="--max-old-space-size=8192"
 
 alias idea.="idea ."
 
+function find_in_gradle_cache () {
+    find ~/.gradle/caches -name $1
+}
+
+function remove_from_gradle_cache () {
+    find ~/.gradle/caches -name $1 | xargs rm -rfv 
+}
+
+alias git_prune_branches='for branch in $(git branch --format "%(refname:short) %(upstream) %(upstream:track)" |grep '\[gone\]$' |awk '{print $1}'); do git branch -D $branch; done'
+
 if [ -f .zshrc.local ]; then
   source .zshrc.local
 fi
